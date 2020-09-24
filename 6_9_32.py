@@ -12,12 +12,11 @@ def Thomas(alpha, beta, gamma, delta):
     result = [(alpha[-1] * coeffs[-1].Q - delta[-1]) / (beta[-1] - alpha[-1] * coeffs[-1].P[-1]),]
     for i in range(2, m + 1):
         result.append(coeffs[-i].P * result[-i] + coeffs[-i].Q)
-    return reversed(result)
+    return list(reversed(result))
 
 
-def finiteDifference(u1, u0, h):
-    return (u1 - u0) / h
-
+def finiteDifference(data, delta):
+    return [(data[i + 1] - data[i]) / delta for i in range(len(data) - 1)]
 
 data = list()
 for line in open("6_9_32_data"):
@@ -25,19 +24,17 @@ for line in open("6_9_32_data"):
 
 N = len(data) - 1
 delta = 10
+
+finiteDiffs = finiteDifference(data, delta)
 #calculating rvals
 
-rvals = list()
-for i in range(N - 1):
-    rvals.append(
-        6 * finiteDifference(
-            finiteDifference(data[i + 2], data[i + 1], delta),
-            finiteDifference(data[i + 1], data[i], delta),
-            delta)
-    )
+rvals = finiteDifference(finiteDiffs, delta)
+
 alpha = [0.] + (N - 2) * [0.5]
 beta = (N - 1) * [2.]
 gamma = (N - 2) * [0.5] + [0.]
 c = Thomas(alpha, beta, gamma, rvals)
+b = [c[i] * delta / 3 + c[i - 1] * delta / 6 + finiteDiffs[i - 1] for i in range(1, N)]
+
 
 
